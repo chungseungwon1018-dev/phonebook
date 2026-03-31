@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { encryptField, decryptField, createBlindIndex } from '@/lib/crypto'
 import { ContactSchema } from '@/lib/validators'
+import { sanitizeHTML } from '@/lib/sanitize'
 
 export async function getContacts({ 
   categoryId, 
@@ -96,12 +97,12 @@ export async function createContact(formData: FormData) {
 
   const { error } = await supabase.from('contacts').insert({
     user_id: user.id,
-    name_encrypted: encryptField(parsed.data.name),
-    phone_encrypted: encryptField(parsed.data.phone),
-    name_index: createBlindIndex(parsed.data.name),
-    phone_index: createBlindIndex(parsed.data.phone),
+    name_encrypted: encryptField(sanitizeHTML(parsed.data.name)),
+    phone_encrypted: encryptField(sanitizeHTML(parsed.data.phone)),
+    name_index: createBlindIndex(sanitizeHTML(parsed.data.name)),
+    phone_index: createBlindIndex(sanitizeHTML(parsed.data.phone)),
     category_id: parsed.data.categoryId || null,
-    memo: parsed.data.memo,
+    memo: parsed.data.memo ? sanitizeHTML(parsed.data.memo) : null,
   })
 
   if (error) throw new Error('연락처 추가 실패')
@@ -124,12 +125,12 @@ export async function updateContact(id: string, formData: FormData) {
   const { error } = await supabase
     .from('contacts')
     .update({
-      name_encrypted: encryptField(parsed.data.name),
-      phone_encrypted: encryptField(parsed.data.phone),
-      name_index: createBlindIndex(parsed.data.name),
-      phone_index: createBlindIndex(parsed.data.phone),
+      name_encrypted: encryptField(sanitizeHTML(parsed.data.name)),
+      phone_encrypted: encryptField(sanitizeHTML(parsed.data.phone)),
+      name_index: createBlindIndex(sanitizeHTML(parsed.data.name)),
+      phone_index: createBlindIndex(sanitizeHTML(parsed.data.phone)),
       category_id: parsed.data.categoryId || null,
-      memo: parsed.data.memo,
+      memo: parsed.data.memo ? sanitizeHTML(parsed.data.memo) : null,
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
