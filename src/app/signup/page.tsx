@@ -1,10 +1,12 @@
 import { signup } from '@/app/actions'
 
-export default function SignupPage({
+export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message?: string }>
 }) {
+  const params = await searchParams
+
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
       <form
@@ -43,9 +45,9 @@ export default function SignupPage({
           Already have an account? Sign In
         </a>
 
-        {searchParams?.message && (
+        {params?.message && (
           <p className="mt-4 p-4 bg-neutral-100 text-neutral-600 text-center text-sm rounded-md">
-            {searchParams.message}
+            {params.message}
           </p>
         )}
       </form>
